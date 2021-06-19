@@ -12,19 +12,19 @@ import matplotlib.pyplot as plt
 #Store the data
 AAPL = pd.read_csv('AAPL.csv')
 #Show the data
-#print(AAPL)
+print(AAPL)
 
 
 
 #Create the simple moving average with a 30 day window
 SMA30 = pd.DataFrame()
 SMA30['Adj Close'] = AAPL['Adj Close'].rolling(window=30).mean()
-print(SMA30)
+#print(SMA30)
 
 #Create the simple moving average with a 100 day window
 SMA100 = pd.DataFrame()
 SMA100['Adj Close'] = AAPL['Adj Close'].rolling(window=100).mean()
-print(SMA100)
+#print(SMA100)
 
 
 #Create a new data frame to store all the data
@@ -38,25 +38,15 @@ data['SMA100'] = SMA100['Adj Close']
 def buy_sell(data):
     sigPriceBuy = []
     sigPriceSell = []
-    flag = -1
 
-    for i in range(len(data)):
-        if data['SMA30'][i] > data['SMA100'][i]:
-            if flag != 1:
-                sigPriceBuy.append(data['AAPL'][i])
-                sigPriceSell.append(np.nan)
-                flag = 1
-            else:
-                sigPriceBuy.append(np.nan)
-                sigPriceSell.append(np.nan)
-        elif data['SMA30'][i] < data['SMA100'][i]:
-            if flag != 0:
-                sigPriceBuy.append(np.nan)
-                sigPriceSell.append(data['AAPL'][i])
-                flag = 0
-            else:
-                sigPriceBuy.append(np.nan)
-                sigPriceSell.append(np.nan)
+    for i in range(len(data) -1 ):
+        #Problem is here
+        if data['AAPL'][i + 1] > data['AAPL'][i]:
+            sigPriceBuy.append(data['AAPL'][i])
+            sigPriceSell.append(np.nan)
+        elif data['AAPL'][i + 1] < data['AAPL'][i]:
+            sigPriceBuy.append(np.nan)
+            sigPriceSell.append(data['AAPL'][i])
         else:
             sigPriceBuy.append(np.nan)
             sigPriceSell.append(np.nan)
@@ -65,12 +55,12 @@ def buy_sell(data):
 buy_sell = buy_sell(data)
 print(buy_sell)
 data['Buy_Signal_Price'] = buy_sell[0]
-data['Sell_Signal_Price'] = buy_sell[1]
+data['Sell_Signal_Price'] = buy_sell[0]
 #Visualize tha data and strategy to buy and sell stock
 plt.figure(figsize=(12.6, 4.6))
 plt.plot(AAPL['Adj Close'], label='AAPL', alpha = 0.35)
-plt.plot(SMA30['Adj Close'], label='SMA30', alpha = 0.35)
-plt.plot(SMA100['Adj Close'], label='SMA100', alpha = 0.35)
+#plt.plot(SMA30['Adj Close'], label='SMA30', alpha = 0.35)
+#plt.plot(SMA100['Adj Close'], label='SMA100', alpha = 0.35)
 plt.scatter(data.index, data['Buy_Signal_Price'], label='Buy', marker='^', color='green')
 plt.scatter(data.index, data['Sell_Signal_Price'], label='Sell', marker='v', color='red')
 plt.title('Apple Adj. Close Price History')
